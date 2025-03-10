@@ -12,16 +12,15 @@ from typing import Union
 from config import file_path, file_path1
 
 
+# Определение текущего каталога
 current_dir = Path(__file__).parent.parent.resolve()
-
 dir_transactions_excel = current_dir/'data'/'operations.xlsx'
 print(dir_transactions_excel)
 
 
 def website(data_time: datetime) -> Union[list, dict]:
 
-    """
-    Главная функция, принимающую на вход строку с датой и временем в формате
+    """ Главная функция, принимающую на вход строку с датой и временем в формате
     YYYY-MM-DD HH:MM:SS и возвращающую JSON-ответ: """
 
 

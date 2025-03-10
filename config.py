@@ -3,6 +3,10 @@ from logging import FileHandler
 from pathlib import Path
 import pandas as pd
 
+
+
+API_KEY_exchange = os.getenv('API_KEY_exchange')
+API_KEY_stocks = os.getenv('API_KEY_stocks')
 ROOT_DIR = os.path.dirname(__file__)
 LOGS_DIR = os.path.join(ROOT_DIR, 'logs')
 DATA_DIR = os.path.join(ROOT_DIR, 'data')
