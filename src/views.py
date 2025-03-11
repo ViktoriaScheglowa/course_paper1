@@ -4,12 +4,15 @@ import os
 import pandas as pd
 import datetime
 
+from dotenv import load_dotenv
 from pathlib import Path
 
 from src.utils import get_currency_rates, get_data_range, get_stock_prices, group_expenses, group_income
-from src.utils import (day_time_now, exchange_rate, get_price_stocks_snp500, max_five_transactions, user_transactions)
+from src.utils import (day_time_now, exchange_rate, price_stocks, max_five_transactions, user_transactions)
 from typing import Union
 from config import file_path, file_path1
+
+load_dotenv('../.env')
 
 
 # Определение текущего каталога
@@ -29,7 +32,7 @@ def website(data_time: datetime) -> Union[list, dict]:
     result2 = user_transactions(data_time)  #Транзакции по картам
     result3 = max_five_transactions(data_time)  #Топ-5 транзакций по сумме платежа.
     result4 = exchange_rate()  #Курс валют.
-    result5 = get_price_stocks_snp500()  # Стоимость акций из S&P500.
+    result5 = price_stocks() #Стоимость акций из S&P500.
 
     return result1, result2, result3, result4, result5
 

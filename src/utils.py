@@ -7,7 +7,11 @@ import requests
 from datetime import datetime, timedelta
 from pathlib import Path
 from config import API_KEY_exchange, API_KEY_stocks
+from dotenv import load_dotenv
+from config import API_KEY_exchange, API_KEY_stocks
 
+# Загрузка переменных окружения
+load_dotenv('../.env')
 
 # Определение текущего каталога
 current_dir = Path(__file__).parent.parent.resolve()
@@ -20,7 +24,7 @@ def day_time_now():
     Функция, которая приветствует в зависимости от текущего времени суток.
     Возвращает строку приветствия в зависимости от времени.
     """
-    current_date_time = datetime.datetime.now()  #текущее время
+    current_date_time = datetime.datetime.now()
     hour = current_date_time.hour
 
     if 0 <= hour < 6 or 22 <= hour <= 23:
@@ -50,7 +54,7 @@ def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
 
     # Расчет кэшбека и группировка по номеру карты
     df_filtered.loc[:, 'кэшбек'] = df_filtered['Сумма операции с округлением'] // 100
-    sales_by_card = df_filtered.groupby('Номер карты')[['Сумма операции с округлением', 'кэшбек']].sum()
+    sales_by_card = df_filtered.groupby('Номер карты')['Сумма операции с округлением', 'кэшбек'].sum()
     sorted_sales = sales_by_card.sort_values(by='Сумма операции с округлением', ascending=False)
 
     print(sorted_sales)
@@ -64,10 +68,11 @@ def max_five_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
     df = pd.read_excel(dir_transactions_excel)
 
     # # Фильтрация транзакций за указанный месяц
-    # df_filtered = df.loc[
-    #     (pd.to_datetime(df['Дата операции'], dayfirst=True) <= data_time) &
-    #     (pd.to_datetime(df['Дата операции'], dayfirst=True) >= data_time.replace(day=1))
-    # ]
+    df_filtered = df.loc[
+         (pd.to_datetime(df['Дата операции'], dayfirst=True) <= data_time) &
+         (pd.to_datetime(df['Дата операции'], dayfirst=True) >= data_time.replace(day=1))
+     ]
+
     # Создаем копию для фильтрации
     filtered_df = df.copy()
 
@@ -78,6 +83,7 @@ def max_five_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
         (pd.to_datetime(filtered_df['Дата операции'],
                         format="%d.%m.%Y %H:%M:%S", dayfirst=True) >= data_time.replace(day=1))
         ]
+
     # Сортировка и получение 5 лучших транзакций
     top_transactions = filtered_df.sort_values(by='Сумма операции с округлением', ascending=False).head(5)
     return top_transactions
@@ -92,13 +98,14 @@ def exchange_rate() -> list:
     convert_to = "RUB"
     new_currency_list = []
 
+
     for currency in currency_list:
         url = f"https://api.apilayer.com/currency_data/convert"
         headers = {"apikey": API_KEY_exchange}
 
         response = requests.get(url, headers=headers)
-        # print("Response:", response.text)  # Отладочный вывод
-        result = response.json()
+        #print("Response:", response.text)  # Отладочный вывод
+        result = response.json() #
         currency_value = result.get('result')
 
         if currency_value is not None:
@@ -109,7 +116,7 @@ def exchange_rate() -> list:
     return new_currency_list
 
 
-def get_price_stocks_snp500() -> list:
+def price_stocks() -> list:
     """
     Функция, которая извлекает цены акций из списка S&P 500
     путем вызова внешнего API.
@@ -127,11 +134,10 @@ def get_price_stocks_snp500() -> list:
 
 
 if __name__ == '__main__':
-    print(day_time_now())
-    print(user_transactions(pd.to_datetime('29-09-2018 00:00:00', dayfirst=True)))
+    print(day_time_now(pd.to_datetime('29-09-2018 00:00:00', dayfirst=True)))
     print(max_five_transactions(pd.to_datetime('29.09.2018', dayfirst=True)))
     print(exchange_rate())
-    print(get_price_stocks_snp500())
+    print(price_stocks())
 
 # Настройка логирования
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -227,23 +233,22 @@ def group_expenses(filtered_data):
     other_expenses = pd.DataFrame({"Категория": ["Остальное"], "Сумма операции": [other_expenses_sum]})
     combined_expenses = pd.concat([top_expenses, other_expenses], ignore_index=True)
 
-    logging.info("Группировка расходов завершена")
     return combined_expenses
 
 
 def group_income(filtered_data):
     """Группирует поступления по категориям и возвращает основные категории."""
-    logging.debug("Начало группировки поступлений")
     income_by_category = (
-        filtered_data[filtered_data["Сумма операции"] > 0].groupby("Категория")["Сумма операции"].sum().reset_index()
+        filtered_data[
+            filtered_data["Сумма операции"] > 0].groupby("Категория")["Сумма операции"].sum().reset_index()
     )
     income_by_category["Сумма операции"] = income_by_category["Сумма операции"].round(0)
     top_income = income_by_category.nlargest(7, "Сумма операции")
     other_income_sum = income_by_category.loc[
         ~income_by_category["Категория"].isin(top_income["Категория"]), "Сумма операции"
     ].sum()
+
     other_income = pd.DataFrame({"Категория": ["Остальное"], "Сумма операции": [other_income_sum]})
     combined_income = pd.concat([top_income, other_income], ignore_index=True)
 
-    logging.info("Группировка поступлений завершена")
     return combined_income
