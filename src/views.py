@@ -1,9 +1,10 @@
-from src.utils import (day_time_now, exchange_rate, price_stocks, max_five_transactions, user_transactions)
-from typing import Union
-import pandas as pd
 import datetime
 from pathlib import Path
+from typing import Union
 
+import pandas as pd
+
+from src.utils import day_time_now, exchange_rate, max_five_transactions, price_stocks, user_transactions
 
 current_dir = Path(__file__).parent.parent.resolve()
 

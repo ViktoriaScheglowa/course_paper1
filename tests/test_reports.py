@@ -1,10 +1,7 @@
-import pytest
 import pandas as pd
-from datetime import datetime
-from src.reports import spending_by_category
-import os
-import json
+import pytest
 
+from src.reports import spending_by_category
 
 transactions_data = {
     'Категория': ['Фастфуд', 'Фастфуд', 'Развлечения'],

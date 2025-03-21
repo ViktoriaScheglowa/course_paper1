@@ -1,4 +1,5 @@
 from typing import Any
+
 import pandas as pd
 
 from src.reports import dir_transactions_excel, spending_by_category

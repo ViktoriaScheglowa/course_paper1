@@ -1,4 +1,3 @@
-import json
 import datetime
 from pathlib import Path
 
@@ -6,7 +5,6 @@ import pandas as pd
 import requests
 
 from config import API_KEY_exchange, API_KEY_stocks
-
 
 # Определение текущего каталога
 current_dir = Path(__file__).parent.parent.resolve()
@@ -40,7 +38,7 @@ def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
     - кэшбек (1 рубль за каждые 100 рублей расхода)
     """
     df = pd.read_excel(dir_transactions_excel)
-    data = pd.read_excel("operations.xlsx", sheet_name="Дата операции")
+    data = pd.read_excel("operations.xlsx")
     json_data = data.to_json()
     # Фильтрация транзакций за указанный месяц
     df_filtered = df.loc[
@@ -91,11 +89,14 @@ def exchange_rate() -> list:
     путем вызова внешнего API.
     """
     currency_list = ["USD", "EUR"]
-    convert_to = "RUB"
+    from_currency = "USD"
+    to_currency = "RUB"
+    amount_value = 100
     new_currency_list = []
 
     for currency in currency_list:
-        url = f"https://api.apilayer.com/currency_data/convert"
+        url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}"
+               f"&from={from_currency}&amount={amount_value}")
         headers = {"apikey": API_KEY_exchange}
 
         response = requests.get(url, headers=headers)
@@ -127,14 +128,9 @@ def price_stocks() -> list:
     return price_stock
 
 
-def read_excel_file() -> json:
-    data = pd.read_excel("operayions.xlsx")
-    json_data = data.to_json()
-
-    return read_excel_file
-
 if __name__ == '__main__':
     print(day_time_now())
+    print(response.json())
     print(max_five_transactions(pd.to_datetime('29.09.2018', dayfirst=True)))
     print(exchange_rate())
     print(price_stocks())
