@@ -6,7 +6,6 @@ import requests
 
 from config import API_KEY_exchange, API_KEY_stocks
 
-
 # Определение текущего каталога
 current_dir = Path(__file__).parent.parent.resolve()
 dir_transactions_excel = current_dir / 'data' / 'operations.xlsx'
@@ -39,7 +38,8 @@ def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
     - кэшбек (1 рубль за каждые 100 рублей расхода)
     """
     df = pd.read_excel(dir_transactions_excel)
-
+    data = pd.read_excel("data/operations.xlsx")
+    json_data = data.to_json()
     # Фильтрация транзакций за указанный месяц
     df_filtered = df.loc[
          (pd.to_datetime(df['Дата операции'], dayfirst=True) <= data_time) &
@@ -48,7 +48,7 @@ def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
 
     # Расчет кэшбека и группировка по номеру карты
     df_filtered.loc[:, 'кэшбек'] = df_filtered['Сумма операции с округлением'] // 100
-    sales_by_card = df_filtered.groupby('Номер карты')['Сумма операции с округлением', 'кэшбек'].sum()
+    sales_by_card = df_filtered.groupby('Номер карты')[['Сумма операции с округлением', 'кэшбек']].sum()
     sorted_sales = sales_by_card.sort_values(by='Сумма операции с округлением', ascending=False)
 
     print(sorted_sales)
@@ -89,14 +89,28 @@ def exchange_rate() -> list:
     путем вызова внешнего API.
     """
     currency_list = ["USD", "EUR"]
-    convert_to = "RUB"
+    from_currency = "USD"
+    to_currency = "RUB"
+    amount_value = 100
     new_currency_list = []
 
+    url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}&from={from_currency}&amount={amount_value}")
+
+    payload = {}
+    headers = {"API_KEY_exchange"}
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    status_code = response.status_code
+    result = response.text
+
     for currency in currency_list:
-        url = f"https://api.apilayer.com/currency_data/convert"
+        url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}"
+               f"&from={from_currency}&amount={amount_value}")
         headers = {"apikey": API_KEY_exchange}
 
         response = requests.get(url, headers=headers)
+        print(response.json)
         result = response.json()
         currency_value = result.get('result')
 
@@ -126,7 +140,7 @@ def price_stocks() -> list:
 
 
 if __name__ == '__main__':
-    print(day_time_now(pd.to_datetime('29-09-2018 00:00:00', dayfirst=True)))
+    print(day_time_now())
     print(max_five_transactions(pd.to_datetime('29.09.2018', dayfirst=True)))
     print(exchange_rate())
     print(price_stocks())

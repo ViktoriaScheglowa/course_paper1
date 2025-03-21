@@ -1,7 +1,6 @@
-import pytest
-from src.views import website
-import json
 from datetime import datetime
+
+from src.views import website
 
 
 def test_website1():

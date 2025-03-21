@@ -36,3 +36,7 @@ def get_beneficial_cashback_categories(data, year, month):
     cashbacks = {category: round(amount * 0.01) for category, amount in category_cashback.items()}
 
     return json.dumps(cashbacks, ensure_ascii=False, indent=4)
+
+
+if __name__ == '__main__':
+    print(json.dumps)

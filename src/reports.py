@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
+
 import pandas as pd
 
 current_dir = Path(__file__).parent.parent.resolve()

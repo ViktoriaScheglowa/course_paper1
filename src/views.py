@@ -1,9 +1,10 @@
-from src.utils import (day_time_now, exchange_rate, price_stocks, max_five_transactions, user_transactions)
-from typing import Union
-import pandas as pd
 import datetime
 from pathlib import Path
+from typing import Union
 
+import pandas as pd
+
+from src.utils import day_time_now, exchange_rate, max_five_transactions, price_stocks, user_transactions
 
 current_dir = Path(__file__).parent.parent.resolve()
 
@@ -28,8 +29,8 @@ if __name__ == '__main__':
 
     print(f'{day_time_now()}')
     print(user_transactions(pd.to_datetime('29-09-2018 00:00:00', dayfirst=True)))
-    data_time = pd.Timestamp("29-09-2018 00:00:00")
-    result = user_transactions(data_time)
+    data_time1 = pd.Timestamp("29-09-2018 00:00:00")
+    result = user_transactions(data_time1)
     print("Результат транзакций:")
     print(result)
     print("Пять максимальных транзакций:")

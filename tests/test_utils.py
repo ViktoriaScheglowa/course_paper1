@@ -1,8 +1,10 @@
-import pytest
-import pandas as pd
-from unittest import mock
-from src.utils import day_time_now, user_transactions, max_five_transactions, exchange_rate, price_stocks
 from datetime import datetime
+from unittest import mock
+
+import pandas as pd
+import pytest
+
+from src.utils import day_time_now, exchange_rate, max_five_transactions, price_stocks, user_transactions
 
 data = {
     'Дата операции': ['29.09.2018', '30.09.2018', '01.10.2018'],

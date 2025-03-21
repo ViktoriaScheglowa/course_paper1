@@ -1,8 +1,7 @@
 import os
-from logging import FileHandler
-from pathlib import Path
 import pandas as pd
 
+from pathlib import Path
 
 
 API_KEY_exchange = os.getenv('API_KEY_exchange')
@@ -26,7 +25,7 @@ pd.read_excel(operations_path)
 
 BASE_DIR = Path(__file__).resolve().parent
 
-EXCEL_PATH = BASE_DIR.joinpath('data/my_operations.xlsx')
+EXCEL_PATH = BASE_DIR.joinpath('data/operations.xlsx')
 JSON_PATH = BASE_DIR.joinpath('user_settings.json')
 LOG_PATH = BASE_DIR.joinpath('logs/app.log')
 REPORTS_PATH = BASE_DIR.joinpath('reports.json')
