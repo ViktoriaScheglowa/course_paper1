@@ -38,7 +38,7 @@ def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
     - кэшбек (1 рубль за каждые 100 рублей расхода)
     """
     df = pd.read_excel(dir_transactions_excel)
-    data = pd.read_excel("operations.xlsx")
+    data = pd.read_excel("data/operations.xlsx")
     json_data = data.to_json()
     # Фильтрация транзакций за указанный месяц
     df_filtered = df.loc[
@@ -94,12 +94,23 @@ def exchange_rate() -> list:
     amount_value = 100
     new_currency_list = []
 
+    url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}&from={from_currency}&amount={amount_value}")
+
+    payload = {}
+    headers = {"API_KEY_exchange"}
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    status_code = response.status_code
+    result = response.text
+
     for currency in currency_list:
         url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}"
                f"&from={from_currency}&amount={amount_value}")
         headers = {"apikey": API_KEY_exchange}
 
         response = requests.get(url, headers=headers)
+        print(response.json)
         result = response.json()
         currency_value = result.get('result')
 
@@ -130,7 +141,6 @@ def price_stocks() -> list:
 
 if __name__ == '__main__':
     print(day_time_now())
-    print(response.json())
     print(max_five_transactions(pd.to_datetime('29.09.2018', dayfirst=True)))
     print(exchange_rate())
     print(price_stocks())
