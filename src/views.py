@@ -28,8 +28,8 @@ if __name__ == '__main__':
 
     print(f'{day_time_now()}')
     print(user_transactions(pd.to_datetime('29-09-2018 00:00:00', dayfirst=True)))
-    data_time = pd.Timestamp("29-09-2018 00:00:00")
-    result = user_transactions(data_time)
+    data_time1 = pd.Timestamp("29-09-2018 00:00:00")
+    result = user_transactions(data_time1)
     print("Результат транзакций:")
     print(result)
     print("Пять максимальных транзакций:")

@@ -1,3 +1,4 @@
+import json
 import datetime
 from pathlib import Path
 
@@ -39,7 +40,8 @@ def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
     - кэшбек (1 рубль за каждые 100 рублей расхода)
     """
     df = pd.read_excel(dir_transactions_excel)
-
+    data = pd.read_excel("operations.xlsx", sheet_name="Дата операции")
+    json_data = data.to_json()
     # Фильтрация транзакций за указанный месяц
     df_filtered = df.loc[
          (pd.to_datetime(df['Дата операции'], dayfirst=True) <= data_time) &
@@ -48,7 +50,7 @@ def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
 
     # Расчет кэшбека и группировка по номеру карты
     df_filtered.loc[:, 'кэшбек'] = df_filtered['Сумма операции с округлением'] // 100
-    sales_by_card = df_filtered.groupby('Номер карты')['Сумма операции с округлением', 'кэшбек'].sum()
+    sales_by_card = df_filtered.groupby('Номер карты')[['Сумма операции с округлением', 'кэшбек']].sum()
     sorted_sales = sales_by_card.sort_values(by='Сумма операции с округлением', ascending=False)
 
     print(sorted_sales)
@@ -125,8 +127,14 @@ def price_stocks() -> list:
     return price_stock
 
 
+def read_excel_file() -> json:
+    data = pd.read_excel("operayions.xlsx")
+    json_data = data.to_json()
+
+    return read_excel_file
+
 if __name__ == '__main__':
-    print(day_time_now(pd.to_datetime('29-09-2018 00:00:00', dayfirst=True)))
+    print(day_time_now())
     print(max_five_transactions(pd.to_datetime('29.09.2018', dayfirst=True)))
     print(exchange_rate())
     print(price_stocks())

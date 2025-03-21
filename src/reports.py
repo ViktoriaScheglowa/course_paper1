@@ -1,7 +1,9 @@
+import json
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 import pandas as pd
+
 
 current_dir = Path(__file__).parent.parent.resolve()
 dir_transactions_excel = current_dir/'data'/'operations.xlsx'
