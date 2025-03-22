@@ -39,7 +39,6 @@ def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
     """
     df = pd.read_excel(dir_transactions_excel)
     data = pd.read_excel("data/operations.xlsx")
-    json_data = data.to_json()
     # Фильтрация транзакций за указанный месяц
     df_filtered = df.loc[
          (pd.to_datetime(df['Дата операции'], dayfirst=True) <= data_time) &
@@ -93,22 +92,17 @@ def exchange_rate() -> list:
     to_currency = "RUB"
     amount_value = 100
     new_currency_list = []
-
     url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}&from={from_currency}&amount={amount_value}")
 
     payload = {}
     headers = {"API_KEY_exchange"}
 
     response = requests.request("GET", url, headers=headers, data=payload)
-
-    status_code = response.status_code
     result = response.text
-
     for currency in currency_list:
         url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}"
                f"&from={from_currency}&amount={amount_value}")
         headers = {"apikey": API_KEY_exchange}
-
         response = requests.get(url, headers=headers)
         print(response.json)
         result = response.json()
