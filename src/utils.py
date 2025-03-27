@@ -1,11 +1,15 @@
 import datetime
 from pathlib import Path
 
+import os
 import pandas as pd
 import requests
 
 from config import API_KEY_exchange, API_KEY_stocks
+from dotenv import load_dotenv
 
+load_dotenv()
+token = {"apikey": os.getenv("API_KEY_exchange")}
 # Определение текущего каталога
 current_dir = Path(__file__).parent.parent.resolve()
 dir_transactions_excel = current_dir / 'data' / 'operations.xlsx'
@@ -92,22 +96,19 @@ def exchange_rate() -> list:
     to_currency = "RUB"
     amount_value = 100
     new_currency_list = []
-    url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}&from={from_currency}&amount={amount_value}")
-
-    payload = {}
-    headers = {"API_KEY_exchange"}
-
-    response = requests.request("GET", url, headers=headers, data=payload)
-    result = response.text
+    url = 'https://api.apilayer.com/exchangerates_data/convert'
+    params = {
+        'to': to_currency,
+        'from': from_currency,
+        'amount': amount_value
+    }
+    headers = {'apikey': API_KEY_exchange}
     for currency in currency_list:
-        url = (f"https://api.apilayer.com/exchangerates_data/convert?to={to_currency}"
-               f"&from={from_currency}&amount={amount_value}")
-        headers = {"apikey": API_KEY_exchange}
-        response = requests.get(url, headers=headers)
-        print(response.json)
+        response = requests.get(url, params=params, headers=headers)
+        print(response.text)
+        print(response.json())
         result = response.json()
         currency_value = result.get('result')
-
         if currency_value is not None:
             new_currency_list.append(currency_value)
         else:
