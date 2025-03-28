@@ -105,7 +105,6 @@ def exchange_rate() -> list:
     headers = {'apikey': API_KEY_exchange}
     for currency in currency_list:
         response = requests.get(url, params=params, headers=headers)
-        print(response.text)
         print(response.json())
         result = response.json()
         currency_value = result.get('result')
