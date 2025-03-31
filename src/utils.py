@@ -1,12 +1,15 @@
 import datetime
 from pathlib import Path
 
+import os
 import pandas as pd
 import requests
 
 from config import API_KEY_exchange, API_KEY_stocks
+from dotenv import load_dotenv
 
-
+load_dotenv()
+token = {"apikey": os.getenv("API_KEY_exchange")}
 # Определение текущего каталога
 current_dir = Path(__file__).parent.parent.resolve()
 dir_transactions_excel = current_dir / 'data' / 'operations.xlsx'
@@ -31,24 +34,20 @@ def day_time_now():
         return "Добрый день"
 
 
-def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
+def user_transactions() -> pd.DataFrame:
     """
     Функция, которая извлекает детали транзакций для каждой карты:
     - последние 4 цифры карты
     - общие расходы
     - кэшбек (1 рубль за каждые 100 рублей расхода)
     """
-    df = pd.read_excel(dir_transactions_excel)
-
+    df = pd.read_excel("data/operations.xlsx")
     # Фильтрация транзакций за указанный месяц
-    df_filtered = df.loc[
-         (pd.to_datetime(df['Дата операции'], dayfirst=True) <= data_time) &
-         (pd.to_datetime(df['Дата операции'], dayfirst=True) >= data_time.replace(day=1))
-     ]
-
+    df['Дата операции'] = pd.to_datetime(df['Дата операции'], dayfirst=True)
+    df_filtered = (df['Дата операции'] <= data_time) & (df['Дата операции'] >= data_time.replace(day=1)).copy
     # Расчет кэшбека и группировка по номеру карты
-    df_filtered.loc[:, 'кэшбек'] = df_filtered['Сумма операции с округлением'] // 100
-    sales_by_card = df_filtered.groupby('Номер карты')['Сумма операции с округлением', 'кэшбек'].sum()
+    df_filtered['кэшбек'] = df_filtered['Сумма операции с округлением'] // 100
+    sales_by_card = df_filtered.groupby('Номер карты')[['Сумма операции с округлением', 'кэшбек']].sum()
     sorted_sales = sales_by_card.sort_values(by='Сумма операции с округлением', ascending=False)
 
     print(sorted_sales)
@@ -89,17 +88,22 @@ def exchange_rate() -> list:
     путем вызова внешнего API.
     """
     currency_list = ["USD", "EUR"]
-    convert_to = "RUB"
+    from_currency = "USD"
+    to_currency = "RUB"
+    amount_value = 100
     new_currency_list = []
-
+    url = 'https://api.apilayer.com/exchangerates_data/convert'
+    params = {
+        'to': to_currency,
+        'from': from_currency,
+        'amount': amount_value
+    }
+    headers = {'apikey': API_KEY_exchange}
     for currency in currency_list:
-        url = f"https://api.apilayer.com/currency_data/convert"
-        headers = {"apikey": API_KEY_exchange}
-
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, params=params, headers=headers)
+        print(response.json())
         result = response.json()
         currency_value = result.get('result')
-
         if currency_value is not None:
             new_currency_list.append(currency_value)
         else:
@@ -126,7 +130,7 @@ def price_stocks() -> list:
 
 
 if __name__ == '__main__':
-    print(day_time_now(pd.to_datetime('29-09-2018 00:00:00', dayfirst=True)))
+    print(day_time_now())
     print(max_five_transactions(pd.to_datetime('29.09.2018', dayfirst=True)))
     print(exchange_rate())
     print(price_stocks())
