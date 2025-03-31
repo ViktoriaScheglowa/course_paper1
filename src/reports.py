@@ -31,7 +31,7 @@ def spending_by_category(transactions: pd.DataFrame,
     df = pd.read_excel(dir_transactions_excel) if isinstance(transactions, pd.DataFrame) else transactions
 
     # Преобразование даты
-    transactions['Дата операции'] = pd.to_datetime(transactions['Дата операции'], format='%d.%m.%Y')
+    df['Дата операции'] = pd.to_datetime(df['Дата операции'], dayfirst=True)
 
     # Фильтрация транзакций по категориям
     filtered_transactions = df[df['Категория'] == category]

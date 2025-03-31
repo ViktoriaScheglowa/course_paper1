@@ -34,23 +34,19 @@ def day_time_now():
         return "Добрый день"
 
 
-def user_transactions(data_time: pd.Timestamp) -> pd.DataFrame:
+def user_transactions() -> pd.DataFrame:
     """
     Функция, которая извлекает детали транзакций для каждой карты:
     - последние 4 цифры карты
     - общие расходы
     - кэшбек (1 рубль за каждые 100 рублей расхода)
     """
-    df = pd.read_excel(dir_transactions_excel)
-    data = pd.read_excel("data/operations.xlsx")
+    df = pd.read_excel("data/operations.xlsx")
     # Фильтрация транзакций за указанный месяц
-    df_filtered = df.loc[
-         (pd.to_datetime(df['Дата операции'], dayfirst=True) <= data_time) &
-         (pd.to_datetime(df['Дата операции'], dayfirst=True) >= data_time.replace(day=1))
-     ]
-
+    df['Дата операции'] = pd.to_datetime(df['Дата операции'], dayfirst=True)
+    df_filtered = (df['Дата операции'] <= data_time) & (df['Дата операции'] >= data_time.replace(day=1)).copy
     # Расчет кэшбека и группировка по номеру карты
-    df_filtered.loc[:, 'кэшбек'] = df_filtered['Сумма операции с округлением'] // 100
+    df_filtered['кэшбек'] = df_filtered['Сумма операции с округлением'] // 100
     sales_by_card = df_filtered.groupby('Номер карты')[['Сумма операции с округлением', 'кэшбек']].sum()
     sorted_sales = sales_by_card.sort_values(by='Сумма операции с округлением', ascending=False)
 

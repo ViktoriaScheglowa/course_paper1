@@ -17,7 +17,7 @@ def website(data_time: datetime) -> Union[list, dict]:
     YYYY-MM-DD HH:MM:SS и возвращающую JSON-ответ: """
     print(f"Входные данные: {data_time}")
     result_time = day_time_now()
-    result_transactions = user_transactions(data_time)
+    result_transactions = user_transactions()
     result_top = max_five_transactions(data_time)
     result_exchange = exchange_rate()
     result_price = price_stocks()
